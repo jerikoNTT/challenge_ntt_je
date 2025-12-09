@@ -1,5 +1,6 @@
 package api_ntt_challenge.repository.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -7,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -19,16 +22,20 @@ public class Movement {
     private Integer id;
 
     @Column(name = "move_local_date")
-    private LocalDateTime localData;
+    private LocalDateTime localDate;
 
     @Column(name = "move_type")
     private String type;
 
     @Column(name = "move_value")
-    private Integer value;
+    private BigDecimal value;
 
     @Column(name = "move_balance")
-    private Integer balance;
+    private BigDecimal balance;
+
+    @ManyToOne
+    @JoinColumn(name = "acco_id")
+    private Account account;
 
 
     ///////getters and setters
@@ -40,12 +47,12 @@ public class Movement {
         this.id = id;
     }
 
-    public LocalDateTime getLocalData() {
-        return localData;
+    public LocalDateTime getLocalDate() {
+        return localDate;
     }
 
-    public void setLocalData(LocalDateTime localData) {
-        this.localData = localData;
+    public void setLocalDate(LocalDateTime localDate) {
+        this.localDate = localDate;
     }
 
     public String getType() {
@@ -56,22 +63,28 @@ public class Movement {
         this.type = type;
     }
 
-    public Integer getValue() {
+    public BigDecimal getValue() {
         return value;
     }
 
-    public void setValue(Integer value) {
+    public void setValue(BigDecimal value) {
         this.value = value;
     }
 
-    public Integer getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(Integer balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
+    public Account getAccount() {
+        return account;
+    }
 
-    
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
 }

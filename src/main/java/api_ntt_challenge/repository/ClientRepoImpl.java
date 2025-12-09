@@ -26,7 +26,7 @@ public class ClientRepoImpl implements IClientRepo{
     @Override
     public List<Client> selectAll() {
         // TODO Auto-generated method stub
-        TypedQuery<Client> myQuery = this.entityManager.createNamedQuery("SELECT c FROM Client c", Client.class);
+        TypedQuery<Client> myQuery = this.entityManager.createQuery("SELECT c FROM Client c", Client.class);
         return myQuery.getResultList();
     }
 
