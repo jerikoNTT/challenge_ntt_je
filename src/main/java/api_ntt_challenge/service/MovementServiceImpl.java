@@ -4,22 +4,23 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import api_ntt_challenge.repository.IAccountRepo;
-import api_ntt_challenge.repository.IMovementRepo;
+import api_ntt_challenge.application.ports.outbound.AccountPersistencePort;
+import api_ntt_challenge.application.ports.outbound.MovementPersistencePort;
 import api_ntt_challenge.repository.model.Account;
 import api_ntt_challenge.repository.model.Movement;
-import jakarta.inject.Inject;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@ApplicationScoped
+@Service
 public class MovementServiceImpl implements IMovementService {
 
-    @Inject
-    private IMovementRepo movementRepo;
+    private final MovementPersistencePort movementRepo;
+    private final AccountPersistencePort accountRepo;
 
-    @Inject
-    private IAccountRepo accountRepo;
+    public MovementServiceImpl(MovementPersistencePort movementRepo, AccountPersistencePort accountRepo) {
+        this.movementRepo = movementRepo;
+        this.accountRepo = accountRepo;
+    }
 
     @Override
     @Transactional

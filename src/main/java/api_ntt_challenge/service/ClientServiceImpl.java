@@ -2,44 +2,52 @@ package api_ntt_challenge.service;
 
 import java.util.List;
 
-import api_ntt_challenge.repository.IClientRepo;
+import api_ntt_challenge.application.ports.outbound.ClientPersistencePort;
 import api_ntt_challenge.repository.model.Client;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import org.springframework.stereotype.Service;
 
-@ApplicationScoped
+/**
+ * Use Case / Service de Clientes.
+ * Cambio de dependencias para arquitectura hexagonal:
+ * - Antes (capas): `ClientServiceImpl` dependía directamente de `IClientRepo` (repositorio)
+ * - Ahora (hexagonal): depende del Port `ClientPersistencePort` (inyección del adapter outbound JPA)
+ *
+ * Para facilitar la migración y compatibilidad con el resto del código, mantenemos
+ * la interfaz `IClientService` y esta clase la implementa, pero internamente usa
+ * `ClientPersistencePort`.
+ */
+@Service
 public class ClientServiceImpl implements IClientService{
 
-    @Inject
-    private IClientRepo clientRepo;
+    // Nota: este es el Port outbound de persistencia (antes IClientRepo)
+    private final ClientPersistencePort clientPersistencePort;
+
+    public ClientServiceImpl(ClientPersistencePort clientPersistencePort) {
+        this.clientPersistencePort = clientPersistencePort;
+    }
 
     @Override
     public Client findForId(Integer id) {
-        // TODO Auto-generated method stub
-        return this.clientRepo.selectForId(id);
+        return this.clientPersistencePort.selectForId(id);
     }
 
     @Override
     public List<Client> foundAll() {
-        // TODO Auto-generated method stub
-        return this.clientRepo.selectAll();
+        return this.clientPersistencePort.selectAll();
     }
 
     @Override
     public void updateForId(Client client) {
-        // TODO Auto-generated method stub
-        this.clientRepo.refeshForId(client);
+        this.clientPersistencePort.refeshForId(client);
     }
 
     @Override
     public void removeForId(Integer id) {
-        // TODO Auto-generated method stub
-        this.clientRepo.deletForId(id);
+        this.clientPersistencePort.deletForId(id);
     }
 
     @Override
     public void save(Client client) {
-        // TODO Auto-generated method stub
-        this.clientRepo.insert(client);
+        this.clientPersistencePort.insert(client);
     }
 }

@@ -1,17 +1,24 @@
-package api_ntt_challenge.repository;
+package api_ntt_challenge.adapters.outbound.jpa;
 
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import api_ntt_challenge.repository.model.Movement;
-import jakarta.enterprise.context.ApplicationScoped;
+import api_ntt_challenge.application.ports.outbound.MovementPersistencePort;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import jakarta.transaction.Transactional;
 
-@ApplicationScoped
+/**
+ * Adapter JPA (outbound) para Movements.
+ * - Nota: MovementPersistencePort is not previously created; create here for parity if needed.
+ */
+@Repository
 @Transactional
-public class MovementRepoImpl implements IMovementRepo {
+public class MovementJpaAdapter implements MovementPersistencePort {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -32,5 +39,4 @@ public class MovementRepoImpl implements IMovementRepo {
     public void insert(Movement movement) {
         this.entityManager.persist(movement);
     }
-
 }

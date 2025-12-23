@@ -1,17 +1,25 @@
-package api_ntt_challenge.repository;
+package api_ntt_challenge.adapters.outbound.jpa;
 
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import api_ntt_challenge.application.ports.outbound.AccountPersistencePort;
 import api_ntt_challenge.repository.model.Account;
-import jakarta.enterprise.context.ApplicationScoped;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import jakarta.transaction.Transactional;
 
-@ApplicationScoped
+/**
+ * Adapter JPA (outbound) para Accounts.
+ * - Antes: `IAccountRepo` + `AccountRepoImpl`
+ * - Ahora: `AccountPersistencePort` (port) y este adapter JPA lo implementa.
+ */
+@Repository
 @Transactional
-public class AccountRepoImpl implements IAccountRepo {
+public class AccountJpaAdapter implements AccountPersistencePort {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -25,7 +33,7 @@ public class AccountRepoImpl implements IAccountRepo {
     public Account selectByNumber(String number) {
         TypedQuery<Account> q = this.entityManager.createQuery("SELECT a FROM Account a WHERE a.accNumber = :num", Account.class);
         q.setParameter("num", number);
-        List<Account> res = q.getResultList();
+        var res = q.getResultList();
         return res.isEmpty() ? null : res.get(0);
     }
 
@@ -51,5 +59,4 @@ public class AccountRepoImpl implements IAccountRepo {
         Account a = selectForId(id);
         if (a != null) this.entityManager.remove(a);
     }
-
 }

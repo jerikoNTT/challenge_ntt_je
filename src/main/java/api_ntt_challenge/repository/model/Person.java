@@ -1,6 +1,5 @@
 package api_ntt_challenge.repository.model;
 
-import io.quarkus.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
