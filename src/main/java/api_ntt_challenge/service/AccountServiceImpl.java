@@ -3,27 +3,29 @@ package api_ntt_challenge.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import api_ntt_challenge.repository.IAccountRepo;
-import api_ntt_challenge.repository.IClientRepo;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import api_ntt_challenge.application.ports.outbound.AccountPersistencePort;
+import api_ntt_challenge.application.ports.outbound.ClientPersistencePort;
 import api_ntt_challenge.repository.model.Account;
 import api_ntt_challenge.repository.model.Client;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
-@ApplicationScoped
+@Service
 public class AccountServiceImpl implements IAccountService {
 
-    @Inject
-    private IAccountRepo accountRepo;
+    private final AccountPersistencePort accountPort;
+    private final ClientPersistencePort clientPort;
 
-    @Inject
-    private IClientRepo clientRepo;
+    public AccountServiceImpl(AccountPersistencePort accountPort, ClientPersistencePort clientPort) {
+        this.accountPort = accountPort;
+        this.clientPort = clientPort;
+    }
 
     @Override
     @Transactional
     public Account createAccount(Integer clientId, Account account) {
-        Client client = this.clientRepo.selectForId(clientId);
+        Client client = this.clientPort.findById(clientId).orElse(null);
         if (client == null) {
             return null;
         }
@@ -33,18 +35,17 @@ public class AccountServiceImpl implements IAccountService {
         if (account.getAccNumber() == null || account.getAccNumber().isBlank()) {
             account.setAccNumber("ACC-" + System.currentTimeMillis());
         }
-        this.accountRepo.insert(account);
-        return account;
+        return this.accountPort.save(account);
     }
 
     @Override
     public List<Account> listByClient(Integer clientId) {
-        return this.accountRepo.selectAllByClientId(clientId);
+        return this.accountPort.findByClientId(clientId);
     }
 
     @Override
     public Account findByNumber(String number) {
-        return this.accountRepo.selectByNumber(number);
+        return this.accountPort.findByNumber(number).orElse(null);
     }
 
 }

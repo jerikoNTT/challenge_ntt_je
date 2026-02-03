@@ -17,4 +17,16 @@ public class AccountMapper {
         return acc;
     }
 
+    public static AccountTo toTo(Account acc) {
+        if (acc == null) return null;
+        AccountTo to = new AccountTo();
+        to.setId(acc.getId());
+        to.setAccNumber(acc.getAccNumber());
+        to.setAccType(acc.getAccType());
+        to.setBalance(acc.getBalance());
+        to.setState(acc.getState());
+        if (acc.getClient() != null) to.setClientId(acc.getClient().getId());
+        return to;
+    }
+
 }

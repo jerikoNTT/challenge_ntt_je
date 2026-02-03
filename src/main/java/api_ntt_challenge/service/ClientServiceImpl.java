@@ -2,44 +2,42 @@ package api_ntt_challenge.service;
 
 import java.util.List;
 
-import api_ntt_challenge.repository.IClientRepo;
-import api_ntt_challenge.repository.model.Client;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import org.springframework.stereotype.Service;
 
-@ApplicationScoped
+import api_ntt_challenge.application.ports.outbound.ClientPersistencePort;
+import api_ntt_challenge.repository.model.Client;
+
+@Service
 public class ClientServiceImpl implements IClientService{
 
-    @Inject
-    private IClientRepo clientRepo;
+    private final ClientPersistencePort clientPort;
+
+    public ClientServiceImpl(ClientPersistencePort clientPort) {
+        this.clientPort = clientPort;
+    }
 
     @Override
     public Client findForId(Integer id) {
-        // TODO Auto-generated method stub
-        return this.clientRepo.selectForId(id);
+        return this.clientPort.findById(id).orElse(null);
     }
 
     @Override
     public List<Client> foundAll() {
-        // TODO Auto-generated method stub
-        return this.clientRepo.selectAll();
+        return this.clientPort.findAll();
     }
 
     @Override
     public void updateForId(Client client) {
-        // TODO Auto-generated method stub
-        this.clientRepo.refeshForId(client);
+        this.clientPort.save(client);
     }
 
     @Override
     public void removeForId(Integer id) {
-        // TODO Auto-generated method stub
-        this.clientRepo.deletForId(id);
+        this.clientPort.deleteById(id);
     }
 
     @Override
     public void save(Client client) {
-        // TODO Auto-generated method stub
-        this.clientRepo.insert(client);
+        this.clientPort.save(client);
     }
 }
