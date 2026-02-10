@@ -3,15 +3,20 @@ package api_ntt_challenge.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class JwtTokenProvider {
+    private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -40,6 +45,17 @@ public class JwtTokenProvider {
                 .issuer(jwtIssuer)
                 .signWith(key)
                 .compact();
+    }
+
+    @PostConstruct
+    private void validateConfig() {
+        if (jwtSecret == null || jwtSecret.isBlank()) {
+            log.error("JWT secret is not set. Please provide a strong secret via the JWT_SECRET environment variable or configuration.");
+            throw new IllegalStateException("Missing jwt.secret configuration");
+        }
+        if (jwtSecret.length() < 32) {
+            log.warn("JWT secret length is less than 32 characters. This is insecure for production environments.");
+        }
     }
 
     /**

@@ -1,0 +1,61 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ntt_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  vault:
+    image: vault:1.14.0
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+
+  vault-init:
+    image: curlimages/curl:8.4.0
+    depends_on:
+      - vault
+    entrypoint: ["/bin/sh","-c"]
+    command: |
+      for i in $(seq 1 30); do
+        if curl -sS http://vault:8200/v1/sys/health >/dev/null 2>&1; then
+          break
+        fi
+        sleep 1
+      done
+      echo "Initializing Vault secrets..."
+      curl --fail --silent --show-error --request POST \
+        --url http://vault:8200/v1/secret/data/application \
+        -H "X-Vault-Token: root" \
+        -H 'Content-Type: application/json' \
+        --data '{"data":{"jwt.secret":"dev-vault-secret-minimo-32-chars-xxxxxxxx","spring.datasource.password":"postgres"}}' || true
+      echo "Vault init complete"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/ntt_dev
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_CLOUD_VAULT_URI: http://vault:8200
+      SPRING_CLOUD_VAULT_TOKEN: root
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - vault-init
+
+volumes:
+  db-data:
