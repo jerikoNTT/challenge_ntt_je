@@ -6,15 +6,13 @@ import org.springframework.stereotype.Service;
 
 import api_ntt_challenge.application.ports.outbound.ClientPersistencePort;
 import api_ntt_challenge.repository.model.Client;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ClientServiceImpl implements IClientService{
 
     private final ClientPersistencePort clientPort;
-
-    public ClientServiceImpl(ClientPersistencePort clientPort) {
-        this.clientPort = clientPort;
-    }
 
     @Override
     public Client findForId(Integer id) {

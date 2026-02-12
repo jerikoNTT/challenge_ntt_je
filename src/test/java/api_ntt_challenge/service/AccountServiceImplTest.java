@@ -9,14 +9,15 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import api_ntt_challenge.application.ports.outbound.AccountPersistencePort;
 import api_ntt_challenge.application.ports.outbound.ClientPersistencePort;
+import api_ntt_challenge.exception.ResourceNotFoundException;
 import api_ntt_challenge.repository.model.Account;
 import api_ntt_challenge.repository.model.Client;
+import api_ntt_challenge.service.support.AccountInitializer;
 
 class AccountServiceImplTest {
 
@@ -26,19 +27,22 @@ class AccountServiceImplTest {
     @Mock
     private ClientPersistencePort clientPort;
 
-    @InjectMocks
+    @Mock
+    private AccountInitializer accountInitializer;
+
     private AccountServiceImpl accountService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        accountService = new AccountServiceImpl(accountPort, clientPort, accountInitializer);
     }
 
     @Test
-    void createAccount_returnsNullWhenClientMissing() {
+    void createAccount_throwsWhenClientMissing() {
         when(clientPort.findById(1)).thenReturn(Optional.empty());
         Account a = new Account();
-        assertNull(accountService.createAccount(1, a));
+        assertThrows(ResourceNotFoundException.class, () -> accountService.createAccount(1, a));
     }
 
     @Test
@@ -46,13 +50,19 @@ class AccountServiceImplTest {
         Client c = new Client();
         c.setId(1);
         when(clientPort.findById(1)).thenReturn(Optional.of(c));
+        doAnswer(invocation -> {
+            Account target = invocation.getArgument(0);
+            if (target.getBalance() == null) target.setBalance(BigDecimal.ZERO);
+            if (target.getAccNumber() == null || target.getAccNumber().isBlank()) target.setAccNumber("ACC-TEST");
+            return null;
+        }).when(accountInitializer).initialize(any(Account.class));
         when(accountPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         Account req = new Account();
         req.setAccNumber(null);
         Account created = accountService.createAccount(1, req);
         assertNotNull(created);
-        assertNotNull(created.getAccNumber());
+        assertEquals("ACC-TEST", created.getAccNumber());
         assertEquals(BigDecimal.ZERO, created.getBalance());
     }
 

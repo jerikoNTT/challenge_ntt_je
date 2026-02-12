@@ -1,14 +1,15 @@
 package api_ntt_challenge.repository.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import jakarta.persistence.*;
+
+// Añadido Lombok (no usar @Data en entidades JPA para evitar problemas con equals/hashCode)
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name="person")
 @Inheritance(strategy = InheritanceType.JOINED)

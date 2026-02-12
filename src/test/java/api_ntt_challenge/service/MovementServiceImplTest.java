@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -18,6 +17,7 @@ import api_ntt_challenge.exception.InsufficientFundsException;
 import api_ntt_challenge.exception.ResourceNotFoundException;
 import api_ntt_challenge.repository.model.Account;
 import api_ntt_challenge.repository.model.Movement;
+import api_ntt_challenge.service.policy.DefaultMovementPolicy;
 
 class MovementServiceImplTest {
 
@@ -27,12 +27,12 @@ class MovementServiceImplTest {
     @Mock
     private AccountPersistencePort accountPort;
 
-    @InjectMocks
     private MovementServiceImpl movementService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        movementService = new MovementServiceImpl(movementPort, accountPort, new DefaultMovementPolicy());
     }
 
     @Test

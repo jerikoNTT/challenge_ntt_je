@@ -27,7 +27,6 @@ public class AccountController {
     public ResponseEntity<AccountTo> create(@PathVariable Integer clientId, @RequestBody AccountTo accountTo) {
         Account account = AccountMapper.toEntity(accountTo);
         Account created = accountService.createAccount(clientId, account);
-        if (created == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(AccountMapper.toTo(created));
     }
 

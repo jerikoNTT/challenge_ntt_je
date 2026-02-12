@@ -9,22 +9,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import api_ntt_challenge.application.ports.outbound.AccountPersistencePort;
 import api_ntt_challenge.application.ports.outbound.MovementPersistencePort;
-import api_ntt_challenge.exception.InsufficientFundsException;
 import api_ntt_challenge.exception.ResourceNotFoundException;
 import api_ntt_challenge.repository.model.Account;
 import api_ntt_challenge.repository.model.Movement;
+import api_ntt_challenge.service.policy.MovementPolicy;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class MovementServiceImpl implements IMovementService {
 
     private final MovementPersistencePort movementPort;
     private final AccountPersistencePort accountPort;
+    private final MovementPolicy movementPolicy;
 
-    public MovementServiceImpl(MovementPersistencePort movementPort, AccountPersistencePort accountPort) {
-        this.movementPort = movementPort;
-        this.accountPort = accountPort;
-    }
-
+    // constructor removed (generado por Lombok)
     @Override
     @Transactional
     public Movement createMovement(String accountNumber, Movement movement) {
@@ -32,22 +31,8 @@ public class MovementServiceImpl implements IMovementService {
         Account account = this.accountPort.findByNumber(accountNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Cuenta no encontrada"));
 
-        // Validación del valor del movimiento; si es nulo o <= 0 lanzamos IllegalArgumentException
-        if (movement.getValue() == null || movement.getValue().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Valor de movimiento inválido");
-        }
-
-        BigDecimal newBalance = account.getBalance() == null ? BigDecimal.ZERO : account.getBalance();
-
-        if ("WITHDRAW".equalsIgnoreCase(movement.getType())) {
-            // Si no hay saldo suficiente, lanzamos una excepción de dominio InsufficientFundsException
-            if (newBalance.compareTo(movement.getValue()) < 0) {
-                throw new InsufficientFundsException(); // Mensaje por defecto: "Saldo no disponible"
-            }
-            newBalance = newBalance.subtract(movement.getValue());
-        } else {
-            newBalance = newBalance.add(movement.getValue());
-        }
+        // Calcula el nuevo balance y valida reglas de negocio
+        BigDecimal newBalance = movementPolicy.calculateNewBalance(account, movement);
         movement.setBalance(newBalance);
         movement.setAccount(account);
         if (movement.getLocalDate() == null) movement.setLocalDate(LocalDateTime.now());

@@ -1,88 +1,54 @@
 # api_challenge_ntt_je
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Este proyecto usa Spring Boot como framework principal.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+Si quieres aprender más sobre Spring Boot, visita: <https://spring.io/projects/spring-boot>.
 
-## Running the application in dev mode
+## Ejecutar la aplicación en modo de desarrollo
 
-You can run your application in dev mode that enables live coding using:
+Para ejecutar la aplicación en modo desarrollo (arrancar con Spring Boot y recargar cambios durante desarrollo), usa:
 
-```shell script
-./mvnw quarkus:dev
+```shell
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+## Empaquetar y ejecutar la aplicación
 
-## Packaging and running the application
+Empaqueta la aplicación con Maven:
 
-The application can be packaged using:
-
-```shell script
+```shell
 ./mvnw package
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+El empaquetado generará un `jar` en la carpeta `target/` (por ejemplo `target/api_challenge_ntt_je-1.0.0-SNAPSHOT.jar`). Ejecuta el artefacto con:
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+```shell
+java -jar target/*.jar --spring.profiles.active=dev
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+Si prefieres ejecutar la aplicación directamente desde Maven en un perfil distinto:
 
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
+```shell
+./mvnw spring-boot:run -Dspring-boot.run.profiles=prod
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+## Guías relacionadas
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+- Hibernate ORM ([guide](https://spring.io/guides/using-data-jpa)): Define tu modelo persistente con Spring Data JPA y Jakarta Persistence
+- OpenAPI / Swagger ([guide](https://springdoc.org/)): Documenta tus APIs REST con OpenAPI y Swagger UI
+- Jackson ([guide](https://spring.io/guides/gs/rest-service/)): Serialización JSON con Jackson en Spring Boot
+- Conector JDBC - PostgreSQL ([guide](https://spring.io/guides/gs/accessing-data-jpa/)): Conectar a PostgreSQL usando Spring Data JPA
 
-You can then execute your native executable with: `./target/api_challenge_ntt_je-1.0.0-SNAPSHOT-runner`
+## Código proporcionado
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+### Hibernate / JPA
 
-## Related Guides
-
-- Hibernate ORM ([guide](https://quarkus.io/guides/hibernate-orm)): Define your persistent model with Hibernate ORM and Jakarta Persistence
-- SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Document your REST APIs with OpenAPI - comes with Swagger UI
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
-- REST JAXB ([guide](https://quarkus.io/guides/resteasy-reactive#xml-serialisation)): JAXB serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-- JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
-
-## Provided Code
-
-### Hibernate ORM
-
-Create your first JPA entity
-
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
-
-
+Ejemplos y entidades JPA ya presentes en el proyecto.
 
 ### REST
 
-Easily start your REST Web Services
+Controladores REST basados en Spring Web (Spring MVC / Spring Web).
 
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
 
 ## Manejo de secretos (credenciales)
 
@@ -91,8 +57,8 @@ Easily start your RESTful Web Services
 
 Configuraciones ya aplicadas en el proyecto:
 
-- `src/main/resources/application-dev.properties`: ahora lee `spring.datasource.username` y `spring.datasource.password` desde `DATABASE_USER` y `DATABASE_PASSWORD`, y `jwt.secret` desde `JWT_SECRET`.
-- `src/main/resources/application-test.properties`: mismo comportamiento; mantiene un secreto por defecto seguro para tests (`JWT_SECRET` con valor por defecto de testing).
+- `src/main/resources/application-dev.properties`: lee `spring.datasource.username` y `spring.datasource.password` desde `DATABASE_USER` y `DATABASE_PASSWORD`, y `jwt.secret` desde `JWT_SECRET`.
+- `src/main/resources/application-test.properties`: comportamiento similar; mantiene un secreto por defecto seguro para tests.
 
 Ejemplos para ejecutar localmente (Windows cmd):
 
@@ -133,25 +99,24 @@ spring.cloud.vault.generic.backend=secret
 spring.cloud.vault.generic.default-context=application
 ```
 
-Con Vault, mapee `spring.datasource.password` y `jwt.secret` a las claves almacenadas en Vault. Esto evita exponer secretos como valores por defecto en el repo.
+Con Vault, mapea `spring.datasource.password` y `jwt.secret` a las claves almacenadas en Vault. Esto evita exponer secretos como valores por defecto en el repositorio.
 
 Si quieres, puedo:
 
-- Añadir dependencia y ejemplo de configuración de Spring Cloud Vault en `pom.xml` y `application-prod.properties`.
-- Añadir un pequeño script `docker-compose` o `Makefile` para levantar un Vault de desarrollo y probar la extracción de secretos.
+- Añadir la dependencia y ejemplo de configuración de Spring Cloud Vault en `pom.xml` y `application-prod.properties`.
+- Añadir un pequeño `docker-compose` o `Makefile` para levantar un Vault de desarrollo y probar la extracción de secretos.
 
-### Implementaciones añadidas (lo que acabo de crear)
+### Implementaciones añadidas (resumen)
 
-- **CI pipeline:** añadí un workflow de GitHub Actions en `.github/workflows/ci.yml` que compila el proyecto y ejecuta los tests en cada `push` y `pull_request`.
-- **Docker + Vault:** añadí `docker-compose.yml` en la raíz que arranca un Postgres local, un servidor Vault en modo `dev`, un contenedor `vault-init` que escribe secretos de ejemplo en Vault, y un servicio `app` que construye y ejecuta la aplicación.
+- **CI pipeline:** incluye un workflow de GitHub Actions en `.github/workflows/ci.yml` que compila el proyecto y ejecuta los tests en cada `push` y `pull_request`.
+- **Docker + Vault:** `docker-compose.yml` en la raíz que arranca Postgres local, un Vault en modo `dev`, un contenedor `vault-init` que escribe secretos de ejemplo, y un servicio `app` que construye y ejecuta la aplicación.
 - **Dockerfile para la app:** `Dockerfile.app` construye el artefacto con Maven y empaca el `jar` en una imagen de runtime.
 
-### Cómo funcionan y cómo probar cada cosa (paso a paso)
+### Cómo probar cada cosa (paso a paso)
 
 1) CI (GitHub Actions)
-- Qué hace: en cada `push` o `pull_request` compila el proyecto y ejecuta los tests. Esto detecta fallos antes de mezclar código.
+- Qué hace: en cada `push` o `pull_request` compila el proyecto y ejecuta los tests.
 - Ficheros: `.github/workflows/ci.yml`.
-- Cómo probar localmente: pushing a tu repo (GitHub) activará el workflow automáticamente. Puedes revisar la ejecución en la pestaña "Actions" del repo.
 
 2) Docker + docker-compose (entorno reproducible de desarrollo)
 - Qué hace: levanta servicios necesarios para desarrollo: Postgres, Vault (modo dev) y tu aplicación.
@@ -179,19 +144,10 @@ curl --header "X-Vault-Token: $VAULT_TOKEN" --request POST --data '{"data":{"jwt
 ```
 
 5) Integración de Vault en el proyecto (dependencia)
-- Nota: para que Spring Boot escriba/lea propiedades desde Vault automáticamente necesitas añadir la dependencia de Spring Cloud Vault.
-- Ejemplo a añadir en `pom.xml` (si quieres que lo haga, lo añado):
+- Nota: para que Spring Boot lea propiedades desde Vault automáticamente necesitas añadir la dependencia de Spring Cloud Vault y gestionar versiones con el BOM de Spring Cloud; puedo añadirlo si quieres.
 
-```xml
-<dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-vault-config</artifactId>
-</dependency>
-```
+### Notas de seguridad y límites
 
-- Además es recomendable alinear la versión de Spring Cloud con tu Spring Boot mediante el BOM de Spring Cloud; puedo añadirlo automáticamente si quieres.
-
-### Notas de seguridad y límites de esta implementación
 - El Vault que levanta `docker-compose` corre en modo `dev` (token `root`) **solo** para desarrollo local. No usar así en producción.
 - La sección `vault-init` escribe secretos de ejemplo; en entornos reales los secretos los crea/gestiona el equipo de infraestructura o CI/CD.
 
